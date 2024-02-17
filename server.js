@@ -16,19 +16,10 @@ mongoose
     "mongodb+srv://SumitSinghvi:Sumitiscool!9@mernapp.sf1tx0r.mongodb.net/?retryWrites=true&w=majority"
   )
   .then(() => {
-    Promise.all([
-      fs.readFile("/etc/letsencrypt/archive/baruche.store/privkey1.pem", "utf8"),
-      fs.readFile("/etc/letsencrypt/archive/baruche.store/cert1.pem", "utf8")
-    ]).then(([privateKey, certificate]) => {
-      const options = { key: privateKey, cert: certificate };
-      const server = https.createServer(options, app);
-      server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-      });
-    }).catch(error => {
-      console.error("Error reading SSL certificate and key files:", error);
+    //listen to the requests
+    app.listen(PORT, () => {
+      console.log("connected to db & listening to PORT", PORT);
     });
-    console.log("connected to db");
   })
   .catch((error) => {
     console.log(error);
