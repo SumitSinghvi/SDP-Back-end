@@ -17,8 +17,8 @@ mongoose
   )
   .then(() => {
     Promise.all([
-      fs.readFile("/etc/letsencrypt/live/baruche.store/privkey.pem", "utf8"),
-      fs.readFile("/etc/letsencrypt/live/baruche.store/certificate.pem", "utf8")
+      fs.readFile("/etc/letsencrypt/archive/baruche.store/privkey1.pem", "utf8"),
+      fs.readFile("/etc/letsencrypt/archive/baruche.store/cert1.pem", "utf8")
     ]).then(([privateKey, certificate]) => {
       const options = { key: privateKey, cert: certificate };
       const server = https.createServer(options, app);
