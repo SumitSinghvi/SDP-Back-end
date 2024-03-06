@@ -12,25 +12,10 @@ const fs = require("fs").promises;
 app.use(express.json());
 app.use(cors());
 
-// Connect to the database file
-// const db = new sqlite3.Database('my_database.db', (err) => {
-//   if (err) {
-//     console.error('Error opening database:', err.message);
-//   } else {
-//     console.log('Connected to the SQLite database.');
-//   }
-// });
-// // Create a new table if it doesn't exist
-// db.run(`CREATE TABLE IF NOT EXISTS userdata (
-//   id INTEGER PRIMARY KEY AUTOINCREMENT,
-//   userName TEXT,
-//   Data TEXT
-// )`);
-
 // MongoDB connection
 mongoose
   .connect(
-    "mongodb+srv://SumitSinghvi:Sumitiscool!9@mernapp.sf1tx0r.mongodb.net/?retryWrites=true&w=majority"
+    process.env.MONGOOSE_URL
   )
   .then(() => {
     //listen to the requests
@@ -57,13 +42,7 @@ const categorySchema = new mongoose.Schema({
 const DataModel = mongoose.model("sdp1", dataSchema);
 const CategoryModel = mongoose.model("sdp1CategoryList", categorySchema);
 
-// const server = http.createServer(app,{
-//   cors:{
-//     origin:"*",
-//   }
-// });
 
-// POST endpoint to handle incoming data
 app.post("/data", (req, res) => {
   const { title, description, quantity, user } = req.body;
   console.log("Received data:");
@@ -110,8 +89,9 @@ app.post("/login", async (req, res) => {
 
     if (user) {
       // Compare passwords
-      const match = bcrypt.compare(password, user.password);
+      const match = await bcrypt.compare(password, user.password);
       if (match) {
+        console.log('match',match)
         // Passwords match, user authenticated
         res.status(200).json({ username: username });
       } else {
@@ -139,7 +119,6 @@ app.get("/data/:uid", async (req, res) => {
 app.get("/category/:user", async (req, res) => {
   const userName = req.params.user;
   const data = await DataModel.find({ userName: userName });
-  // const data = await getUserData(userName);
   console.log("Fetched data:", data ? data : "wrong ID");
   res.status(200).json(data);
 });
@@ -155,7 +134,6 @@ function generateProducts(Data, quantity, user) {
     products.push(product);
     saveToMongoDB(uid, Data, user);
   }
-  // handleExcel(user, products)
   return products;
 }
 
@@ -172,75 +150,3 @@ async function saveToMongoDB(uid, Data, user) {
   }
 }
 
-// const getUserData = (username) => {
-//   return new Promise((resolve, reject) => {
-//     db.get('SELECT data FROM userdata WHERE userName = ?', [username], (err, row) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         if (row) {
-//           resolve(row);
-//         } else {
-//           resolve(null);
-//         }
-//       }
-//     });
-//   });
-// };
-
-// function handleExcel(user, products) {
-//   return new Promise((resolve, reject) => {
-//     const serializedData = JSON.stringify(products);
-//     db.run('INSERT INTO userdata (userName, Data) VALUES (?, ?)', [user, serializedData], function(err) {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(this.lastID);
-//       }
-//     });
-//   });
-// }
-
-// app.post("/deleteCategory", async (req, res) => {
-//   const { categoryName } = req.body;
-//   if (!categoryName) {
-//     console.log("categoryName:", categoryName);
-//     return;
-//   }
-//   const user = await CategoryModel.findOne({ userName: "Name" });
-
-//   if (!user) {
-//     console.log("User not found");
-//     return;
-//   }
-
-//   // Remove the desired item from the dataList
-//   const itemToRemove = categoryName; // Replace 'item_to_remove' with the item you want to remove
-//   user.categoryList = user.categoryList.filter(item => item !== itemToRemove);
-
-//   // Save the updated document
-//   const updatedUser = await user.save();
-//   console.log("User updated:", updatedUser);
-//   res.status(200).json(categoryName);
-// });
-// app.post("/categoryList", async (req, res) => {
-//   const { categoryName } = req.body;
-//   if (!categoryName) {
-//     console.log("categoryName:", categoryName);
-//     return;
-//   }
-//   const user = await CategoryModel.findOne({ userName: "Name" });
-
-//   if (!user) {
-//     console.log("User not found");
-//     return;
-//   }
-
-//   // Append the new element to the list
-//   user.categoryList.push(categoryName);
-
-//   // Save the updated document
-//   const updatedUser = await user.save();
-//   console.log("User updated:", updatedUser);
-//   res.status(200).json(categoryName);
-// });
